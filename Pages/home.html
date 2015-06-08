@@ -3,7 +3,9 @@
         <h4>Forecast by city</h4>
         <div class="form-group">
             <input type="text" ng-model="city" class="form-control" /> <br />
-            <select ng-model="selectedLanguage" ng-options="lang.name for lang in supportedLanguages"></select>
+            <select ng-model="selectedLanguage" ng-options="language.name for language in supportedLanguages" ng-change="languageChanged(selectedLanguage)"></select>
+            <select ng-model="selectedUnit" ng-options="unit.name for unit in temperatureUnits" ng-change="temperatureUnitChanged(selectedUnit)"></select>
+            <select ng-model="selectedDays" ng-options="days for days in AllDays" ng-change="daysChanged(selectedDays)"></select>
         </div>
         <a href="#/forcast" class="btn btn-primary">Get Forecast</a>
     </div>

@@ -16,17 +16,37 @@ weatherApp.config(function ($routeProvider) {
         .when('/forcast', {
             templateUrl: 'Pages/forcast.html',
             controller: 'forecastController'
-        })
-        .when('/forcast/:days/:units', {
-            templateUrl: 'Pages/forcast.html',
-            controller: 'forecastController'
         });
+//        .when('/forcast/:days', {
+//            templateUrl: 'Pages/forcast.html',
+//            controller: 'forecastController'
+//        })
+//        .when('/forcast/:days/:units', {
+//            templateUrl: 'Pages/forcast.html',
+//            controller: 'forecastController'
+//        });
 
 });
 
 //SERVICES
 weatherApp.service('forecastService', function () {
     this.city = "Lagos NG";
+    
+    this.selectedDays = 3;
+    this.days = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
+    this.selectedTemperatureUnit = "";
+    this.units = [
+        {
+            name: "Fahrenheit",
+            unit: "imperial"
+        },
+        {
+            name: "Celsius",
+            unit: "metric"
+        }
+    ];
+
     this.selectedLanguage = "";
     this.Languages = [
         {
@@ -112,17 +132,28 @@ weatherApp.service('forecastService', function () {
 weatherApp.controller('homeController', ['$scope', 'forecastService', function ($scope, forecastService) {
     $scope.city = forecastService.city;
     
+    $scope.AllDays = forecastService.days;
+    
+
     $scope.supportedLanguages = forecastService.Languages;
-    $scope.selectedLanguage = forecastService.Languages[0];
-    
-    $scope.$watch('selectedLanguage', function(){
-        forecastService.selectedLanguage = $scope.selectedLanguage;
-    });
-    
+    $scope.temperatureUnits = forecastService.units;
 
     $scope.$watch('city', function () {
         forecastService.city = $scope.city;
     });
+
+    $scope.languageChanged = function (newLanguage) {
+        forecastService.selectedLanguage = newLanguage;
+    }
+
+    $scope.temperatureUnitChanged = function (newTempUnit) {
+        forecastService.selectedTemperatureUnit = newTempUnit;
+    }
+    
+    $scope.daysChanged = function(newDays){
+        forecastService.selectedDays = newDays;
+    }
+
 }]);
 
 weatherApp.controller('forecastController', ['$scope', '$resource', '$routeParams', 'forecastService', function ($scope, $resource, $routeParams, forecastService) {
@@ -134,19 +165,24 @@ weatherApp.controller('forecastController', ['$scope', '$resource', '$routeParam
             method: "JSONP"
         }
     });
-    
-    $scope.days = $routeParams.days || 3;
-    $scope.tempUnit = $routeParams.units || "metric";
-   
 
+    $scope.days = forecastService.selectedDays || 3 ; //$routeParams.days || 3;
+    $scope.tempUnit = forecastService.selectedTemperatureUnit.unit; //$routeParams.units;
+    $scope.language = forecastService.selectedLanguage.key;
+    
+    $scope.convertToDate = function(dt){
+        return new Date(dt * 1000);
+    }
+
+    console.log($scope.language);
+    
     $scope.weatherForecastResult = $scope.weatherAPI.get({
         q: $scope.city,
         cnt: $scope.days,
-        units: $scope.tempUnit
+        units: $scope.tempUnit,
+        lang: $scope.language
     });
     
-
-    console.log(forecastService.selectedLanguage);
-    //console.log($scope.weatherForecastResult);
+    console.log($scope.weatherForecastResult);
 
 }]);
