@@ -1,10 +1,34 @@
 //SERVICES
 
-weatherApp.service('forecastService', function () {
-    this.city = "Lagos NG";
+weatherApp.service('forecastDataService', ['$resource', function ($resource) {
     
+    this.GetWeatherData = function (city, days, tempUnit, language) {
+        var weatherAPI = $resource("http://api.openweathermap.org/data/2.5/forecast/daily", {
+            callback: "JSON_CALLBACK"
+        }, {
+            get: {
+                method: "JSONP"
+            }
+        });
+
+        var data =  weatherAPI.get({
+            q: city,
+            cnt: days,
+            units: tempUnit,
+            lang: language
+        });
+        
+        return data;
+
+    }
+
+}]);
+
+weatherApp.service('forecastParamService', function () {
+    this.city = "Lagos NG";
+
     this.selectedDays = 3;
-    this.days = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+    this.days = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     this.selectedTemperatureUnit = "";
     this.units = [

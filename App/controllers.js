@@ -1,28 +1,28 @@
 //CONTROLLERS
 
-weatherApp.controller('homeController', ['$scope', '$location', 'forecastService', function ($scope, $location, forecastService) {
-    $scope.city = forecastService.city;
+weatherApp.controller('homeController', ['$scope', '$location', 'forecastParamService', function ($scope, $location, forecastParamService) {
+    $scope.city = forecastParamService.city;
     
-    $scope.AllDays = forecastService.days;
+    $scope.AllDays = forecastParamService.days;
     
 
-    $scope.supportedLanguages = forecastService.Languages;
-    $scope.temperatureUnits = forecastService.units;
+    $scope.supportedLanguages = forecastParamService.Languages;
+    $scope.temperatureUnits = forecastParamService.units;
 
     $scope.$watch('city', function () {
-        forecastService.city = $scope.city;
+        forecastParamService.city = $scope.city;
     });
 
     $scope.languageChanged = function (newLanguage) {
-        forecastService.selectedLanguage = newLanguage;
+        forecastParamService.selectedLanguage = newLanguage;
     }
 
     $scope.temperatureUnitChanged = function (newTempUnit) {
-        forecastService.selectedTemperatureUnit = newTempUnit;
+        forecastParamService.selectedTemperatureUnit = newTempUnit;
     }
     
     $scope.daysChanged = function(newDays){
-        forecastService.selectedDays = newDays;
+        forecastParamService.selectedDays = newDays;
     }
     
     $scope.submit = function(){
@@ -31,19 +31,12 @@ weatherApp.controller('homeController', ['$scope', '$location', 'forecastService
 
 }]);
 
-weatherApp.controller('forecastController', ['$scope', '$resource', '$routeParams', 'forecastService', function ($scope, $resource, $routeParams, forecastService) {
-    $scope.city = forecastService.city;
-    $scope.weatherAPI = $resource("http://api.openweathermap.org/data/2.5/forecast/daily", {
-        callback: "JSON_CALLBACK"
-    }, {
-        get: {
-            method: "JSONP"
-        }
-    });
+weatherApp.controller('forecastController', ['$scope', '$resource', '$routeParams', 'forecastParamService', 'forecastDataService', function ($scope, $resource, $routeParams, forecastParamService, forecastDataService) {
+    $scope.city = forecastParamService.city;
 
-    $scope.days = forecastService.selectedDays || 3 ; //$routeParams.days || 3;
-    $scope.tempUnit = forecastService.selectedTemperatureUnit.unit; //$routeParams.units;
-    $scope.language = forecastService.selectedLanguage.key;
+    $scope.days = forecastParamService.selectedDays || 3 ; 
+    $scope.tempUnit = forecastParamService.selectedTemperatureUnit.unit; 
+    $scope.language = forecastParamService.selectedLanguage.key;
     
     $scope.convertToDate = function(dt){
         return new Date(dt * 1000);
@@ -51,13 +44,6 @@ weatherApp.controller('forecastController', ['$scope', '$resource', '$routeParam
 
     console.log($scope.language);
     
-    $scope.weatherForecastResult = $scope.weatherAPI.get({
-        q: $scope.city,
-        cnt: $scope.days,
-        units: $scope.tempUnit,
-        lang: $scope.language
-    });
-    
-    console.log($scope.weatherForecastResult);
+    $scope.weatherForecastResult =  forecastDataService.GetWeatherData($scope.city, $scope.days, $scope.tempUnit, $scope.language);
 
 }]);
